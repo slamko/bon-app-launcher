@@ -1,5 +1,8 @@
 
-()
+(defmacro do-new-list (n new-list base-list body)
+  (let (new-list)
+	(dolist (n base-list new-list)
+	  body)))
 
 (defun bon-app-do-launch (command)
   (interactive (list (read-shell-command $ )))
@@ -11,13 +14,17 @@
 	  (split-string path-var ":"))))
 
 (defun all-bins ()
-  )
+  (interactive)
+  (let (all-bin-names)
+	(dolist (bin-path (get-bin-directories) all-bin-names)
+	  (if (file-exists-p bin-path)
+		  (setq all-bin-names (append (directory-files bin-path nil "^[a-zA-Z0-9].*$") all-bin-names))))))
 
 (defun list-binaries ()
   (interactive)
   (let (binary-list)
-	(dolist (bin-path (directory-files "/usr/bin/" nil "^[a-zA-Z0-9].*$") binary-list)
-	  (setq binary-list (append binary-list (list bin-path))))))
+	(dolist (bin-path (all-bins) binary-list)
+	  (setq binary-list (append (list (file-name-nondirectory bin-path)) binary-list)))))
 
 (defun list-binary-entries (binary-list)
   (interactive)
