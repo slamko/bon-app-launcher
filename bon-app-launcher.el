@@ -67,5 +67,3 @@
 				  :require-match nil
 				  :preselect bon-app-launcher--last-entry))
 	(bon-app-launcher--do-launch (read-shell-command "$ " ))))
-
-(global-set-key (kbd "s-p") 'bon-app-launcher)
