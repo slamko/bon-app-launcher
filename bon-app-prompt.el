@@ -7,7 +7,7 @@
 	  body)))
 
 (defun bon-app-do-launch (command)
-  (interactive (list (read-shell-command "$" )))
+  (interactive (list (read-shell-command "$ " )))
   (setq bon-app-launcher-last-entry (car (split-string command " ")))
   (start-process-shell-command command nil command))
 
@@ -39,16 +39,17 @@
 
 (defun bon-app-launcher (&optional arg)
   (interactive "P")
-  (let
-	  ((applications (list-binaries
-					  (unique-bins
-					   (all-bins
-						(get-bin-directories))))))
-	(ivy-read "Run application: " applications
-            :action #'bon-app-do-launch
-            :caller 'bon-app-launcher
-			:require-match nil
-			:preselect bon-app-launcher-last-entry)))
-
+  (if (fboundp 'ivy-read)
+	  (let
+		  ((applications (list-binaries
+						  (unique-bins
+						   (all-bins
+							(get-bin-directories))))))
+		(ivy-read "Run application: " applications
+				  :action #'bon-app-do-launch
+				  :caller 'bon-app-launcher
+				  :require-match nil
+				  :preselect bon-app-launcher-last-entry))
+	(bon-app-do-launch (read-shell-command "$ " ))))
 
 (global-set-key (kbd "s-p") 'bon-app-launcher)
