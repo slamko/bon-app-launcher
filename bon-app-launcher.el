@@ -22,7 +22,7 @@
 (defun bon-app-launcher--do-launch (command)
   (interactive (list (read-shell-command "$ " )))
   (setq bon-app-launcher--last-entry (car (split-string command " ")))
-  (start-process-shell-command command nil command))
+  (start-process-shell-command bon-app-launcher--last-entry nil command))
 
 (defun get-bin-directories ()
   (let ((path-var (getenv "PATH")))
@@ -67,3 +67,5 @@
 				  :require-match nil
 				  :preselect bon-app-launcher--last-entry))
 	(bon-app-launcher--do-launch (read-shell-command "$ " ))))
+
+(provide 'bon-app-launcher)
