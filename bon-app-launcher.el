@@ -33,34 +33,35 @@
   (let (all-bin-names)
 	(dolist (bin-path bin-directories all-bin-names)
 	  (if (file-exists-p bin-path)
-		  (setq all-bin-names (append (directory-files bin-path nil "^[a-zA-Z0-9].*$") all-bin-names))))))
+		  (setq all-bin-names (append (directory-files bin-path t "^[a-zA-Z0-9].*$") all-bin-names))))))
 
 (defun unique-bins (bins)
   (let (unique-bin-names)
 	(dolist (bin-path bins unique-bin-names)
-	  (if (not (member bin-path unique-bin-names))
-		  (setq unique-bin-names (append (list bin-path) unique-bin-names))))))
+	  (let ((file-name-bin (file-name-nondirectory bin-path)))
+		(if (and (not (member file-name-bin unique-bin-names)) (file-executable-p bin-path) (not (file-directory-p bin-path)))
+			(setq unique-bin-names (append (list file-name-bin) unique-bin-names)))))))
 
 (defun list-binaries (bins)
   (reverse (mapcar 'file-name-nondirectory bins)))
 
-(defun bon-app-launcher--list-binaries ()
+(defun bon-app-launcher--list-binaries (&optional bin-path)
   (interactive)
   (list-binaries
    (unique-bins
 	 (all-bins
-	  (get-bin-directories)))))
+	  (if bin-path (list bin-path) (get-bin-directories))))))
 
 (defun list-binary-entries (binary-list)
   (let (binary-entries)
 	(dolist (bin-path binary-list binary-entries)
 	  (setq binary-entries (append binary-entries (cons (file-name-nondirectory bin-path) bin-path))))))
 
-(defun bon-app-launcher ()
+(defun bon-app-launcher (&optional bin-path)
   (interactive)
   (if (fboundp 'ivy-read)
 	  (let
-		  ((applications (bon-app-launcher--list-binaries)))
+		  ((applications (bon-app-launcher--list-binaries bin-path)))
 		(ivy-read "Run application: " applications
 				  :action #'bon-app-launcher--do-launch
 				  :caller 'bon-app-launcher
