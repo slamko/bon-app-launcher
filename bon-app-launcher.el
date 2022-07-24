@@ -58,7 +58,8 @@
 	  (setq binary-entries (append binary-entries (cons (file-name-nondirectory bin-path) bin-path))))))
 
 (defun bon-app-launcher (&optional bin-path)
-  (interactive)
+  (interactive (list
+				(read-directory-name "Binaries location path: " "/" "/usr/bin" t "usr/bin")))
   (if (fboundp 'ivy-read)
 	  (let
 		  ((applications (bon-app-launcher--list-binaries bin-path)))
@@ -68,5 +69,9 @@
 				  :require-match nil
 				  :preselect bon-app-launcher--last-entry))
 	(bon-app-launcher--do-launch (read-shell-command "$ " ))))
+
+(defun bon-app-launcher-usr-bin ()
+  (interactive)
+  (bon-app-launcher "/usr/bin"))
 
 (provide 'bon-app-launcher)
