@@ -11,8 +11,20 @@
 ;;
 ;; You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+(require 'f)
+
+(defvar-local cache-dir "~/.cache/bon-app-launcher/")
+
+(defun bal--append-cache-dir (file)
+  (concat cache-dir file))
 
 (setq bon-app-launcher--last-entry "")
+
+(when (not (file-directory-p cache-dir))
+      (make-directory cache-dir))
+
+(when (not bon-app-launcher--last-entry)
+  (setq bon-app-launcher--last-entry (f-read-text (bal--append-cache-dir "last"))))
 
 (defmacro do-new-list (n new-list base-list body)
   (let (new-list)
@@ -22,6 +34,7 @@
 (defun bon-app-launcher--do-launch (command)
   (interactive (list (read-shell-command "$ " )))
   (setq bon-app-launcher--last-entry (car (split-string command " ")))
+  (f-write-text bon-app-launcher--last-entry 'utf-8 (bal--append-cache-dir "last"))
   (start-process-shell-command bon-app-launcher--last-entry nil command))
 
 (defun get-bin-directories ()
