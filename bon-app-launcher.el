@@ -19,8 +19,7 @@
   (progn
     (when (not (file-directory-p "~/.emacs.d/"))
       (setq cache-dir "~/.cache/bon-app-launcher/"))
-    (when (not (file-directory-p "~/.emacs.d/"))
-      (make-directory cache-dir t))
+    (make-directory cache-dir t)
     cache-dir))
 
 (defvar-local last-entries-list nil)
@@ -28,11 +27,15 @@
 (defvar bon-app-launcher--last-entry nil)
 
 (defun bon-app-launcher--last-entries-file ()
-  (concat (bon-app-launcher--get-cache-dir) "all"))
+  (let ((file (concat (bon-app-launcher--get-cache-dir) "all")))
+    (f-touch file)
+    file))
 
 (defun bon-app-launcher--last-entry-file ()
-  (concat (bon-app-launcher--get-cache-dir) "last"))
-
+  (let ((file (concat (bon-app-launcher--get-cache-dir) "last")))
+    (f-touch file)
+    file))
+  
 (defun read-file-to-list (file)
   (with-current-buffer
     (find-file-noselect file)
@@ -96,8 +99,8 @@
 (defun bon-app-launcher (&optional bin-path)
   (interactive (list
 				(read-directory-name "Binaries location path: " "/" "/usr/bin" t "usr/bin")))
-  
-  (when (and (not bon-app-launcher--last-entry) (file-exists-p (bon-app-launcher--last-entry-file)))
+
+  (when (or (not bon-app-launcher--last-entry) (file-exists-p (bon-app-launcher--last-entry-file)))
     (setq bon-app-launcher--last-entry (f-read-text (bon-app-launcher--last-entry-file))))
   
   (if (fboundp 'ivy-read)
