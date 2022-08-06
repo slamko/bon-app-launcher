@@ -13,25 +13,25 @@
 
 (require 'f)
 
-(defvar-local cache-dir "~/.cache/bon-app-launcher/")
+(defvar-local cache-dir "~/.emacs.d/.cache/bon-app-launcher/")
+
+(defun bon-app-launcher--get-cache-dir ()
+  (progn
+    (when (not (file-directory-p "~/.emacs.d/"))
+      (setq cache-dir "~/.cache/bon-app-launcher/"))
+    (when (not (file-directory-p "~/.emacs.d/"))
+      (make-directory cache-dir t))
+    cache-dir))
 
 (defvar-local last-entries-list nil)
 
-(defun bal--append-cache-dir (file)
-  (concat cache-dir file))
+(defvar bon-app-launcher--last-entry nil)
 
-(setq bon-app-launcher--last-entry "")
+(defun bon-app-launcher--last-entries-file ()
+  (concat (bon-app-launcher--get-cache-dir) "all"))
 
-(when (not (file-directory-p cache-dir))
-      (make-directory cache-dir))
-
-(when (not bon-app-launcher--last-entry)
-  (setq bon-app-launcher--last-entry (f-read-text (bal--append-cache-dir "last"))))
-
-(defmacro do-new-list (n new-list base-list body)
-  (let (new-list)
-	(dolist (n base-list new-list)
-	  body)))
+(defun bon-app-launcher--last-entry-file ()
+  (concat (bon-app-launcher--get-cache-dir) "last"))
 
 (defun read-file-to-list (file)
   (with-current-buffer
@@ -46,10 +46,12 @@
 (defun bon-app-launcher--do-launch (command)
   (interactive (list (read-shell-command "$ " )))
   (setq bon-app-launcher--last-entry (car (split-string command " ")))
-  (with-temp-file (bal--append-cache-dir "last") (insert bon-app-launcher--last-entry))
+  
+  (f-write-text bon-app-launcher--last-entry 'utf-8 (bon-app-launcher--last-entry-file))
   (when (not (member command last-entries-list))
     (setq last-entries-list (push command last-entries-list))
-    (f-append-text (concat command "\n") 'utf-8 (bal--append-cache-dir "all")))
+    (f-append-text (concat command "\n") 'utf-8 (bon-app-launcher--last-entries-file)))
+  
   (start-process-shell-command bon-app-launcher--last-entry nil command))
 
 (defun get-bin-directories ()
@@ -59,7 +61,7 @@
 
 (defun all-bins (bin-directories)
   (when (not last-entries-list)
-    (setq last-entries-list (read-file-to-list (bal--append-cache-dir "all"))))
+    (setq last-entries-list (read-file-to-list (bon-app-launcher--last-entries-file))))
   (let (all-bin-names)
 	(dolist (bin-path bin-directories all-bin-names)
 	  (if (file-exists-p bin-path)
@@ -94,6 +96,10 @@
 (defun bon-app-launcher (&optional bin-path)
   (interactive (list
 				(read-directory-name "Binaries location path: " "/" "/usr/bin" t "usr/bin")))
+  
+  (when (and (not bon-app-launcher--last-entry) (file-exists-p (bon-app-launcher--last-entry-file)))
+    (setq bon-app-launcher--last-entry (f-read-text (bon-app-launcher--last-entry-file))))
+  
   (if (fboundp 'ivy-read)
 	  (let
 		  ((applications (bon-app-launcher--list-binaries bin-path)))
