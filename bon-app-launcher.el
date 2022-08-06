@@ -15,6 +15,8 @@
 
 (defvar-local cache-dir "~/.cache/bon-app-launcher/")
 
+(defvar-local last-entries-list nil)
+
 (defun bal--append-cache-dir (file)
   (concat cache-dir file))
 
@@ -31,10 +33,23 @@
 	(dolist (n base-list new-list)
 	  body)))
 
+(defun read-file-to-list (file)
+  (with-current-buffer
+    (find-file-noselect file)
+    (split-string
+     (save-restriction
+       (widen)
+       (buffer-substring-no-properties
+        (point-min)
+        (point-max))) "\n" t)))
+
 (defun bon-app-launcher--do-launch (command)
   (interactive (list (read-shell-command "$ " )))
   (setq bon-app-launcher--last-entry (car (split-string command " ")))
-  (f-write-text bon-app-launcher--last-entry 'utf-8 (bal--append-cache-dir "last"))
+  (with-temp-file (bal--append-cache-dir "last") (insert bon-app-launcher--last-entry))
+  (when (not (member command last-entries-list))
+    (setq last-entries-list (push command last-entries-list))
+    (f-append-text (concat command "\n") 'utf-8 (bal--append-cache-dir "all")))
   (start-process-shell-command bon-app-launcher--last-entry nil command))
 
 (defun get-bin-directories ()
@@ -43,6 +58,8 @@
 	  (split-string path-var ":"))))
 
 (defun all-bins (bin-directories)
+  (when (not last-entries-list)
+    (setq last-entries-list (read-file-to-list (bal--append-cache-dir "all"))))
   (let (all-bin-names)
 	(dolist (bin-path bin-directories all-bin-names)
 	  (if (file-exists-p bin-path)
@@ -52,11 +69,15 @@
   (let (unique-bin-names)
 	(dolist (bin-path bins unique-bin-names)
 	  (let ((file-name-bin (file-name-nondirectory bin-path)))
-		(if (and (not (member file-name-bin unique-bin-names)) (file-executable-p bin-path) (not (file-directory-p bin-path)))
+		(if
+            (and
+             (not (member file-name-bin unique-bin-names))
+             (not (member file-name-bin last-entries-list))
+             (file-executable-p bin-path) (not (file-directory-p bin-path)))
 			(setq unique-bin-names (append (list file-name-bin) unique-bin-names)))))))
 
 (defun list-binaries (bins)
-  (reverse (mapcar 'file-name-nondirectory bins)))
+  (append last-entries-list (reverse (mapcar 'file-name-nondirectory bins))))
 
 (defun bon-app-launcher--list-binaries (&optional bin-path)
   (interactive)
