@@ -5,14 +5,13 @@
   and runs the shell command with *start-process-shell-command*.
   It also by default preselects the last chosen entry.
 
-** Why?
-   Mainly to bring dmenu into the Emacs as a Desktop.
-   1. The way that EXWM offers to run applications is just a shell prompt with no interactive menu (which is bad).
-   2. Other options such as *counsel-linux-app* or *app-launcher* by System Crafters for some reason show only "desktop" applications in the list
-	  or do not allow to pass custom options to the program.
-
-   *Bon app launcher* on the other hand aims to bring the simplicity of dmenu and the power of the shell prompt.
-
+** About
+   The package intends to bring dmenu features to GNU Emacs editor used as a Desktop Environment.
+   For some reason other application launchers for Emacs (like ```counsel-linux-app```) do not allow to run custom shell command or pass some options to the        programs (as dmenu does) and at the same time the default EXWM app launcher, which allows running shell commands, does not have an interactive menu.
+   So ```bon-app-launcher``` is an Emacs-addopted dmenu clone with two additional features:
+   1. Autoselecting last chosen entry
+   2. Sorting most used entries to the beggining of the list
+   
 ** Getting started
    Cloning the repo:
 #+begin_src sh
