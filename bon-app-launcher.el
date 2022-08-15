@@ -37,14 +37,7 @@
     file))
   
 (defun read-file-to-list (file)
-  (with-current-buffer
-    (find-file-noselect file)
-    (split-string
-     (save-restriction
-       (widen)
-       (buffer-substring-no-properties
-        (point-min)
-        (point-max))) "\n" t)))
+  (split-string (f-read-text file) "\n" t))
 
 (defun bon-app-launcher--do-launch (command)
   (interactive (list (read-shell-command "$ " )))
