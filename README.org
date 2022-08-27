@@ -24,7 +24,11 @@ git clone https://github.com/slamko/bon-app-launcher.git
 (require 'bon-app-launcher)
 #+end_src
 
-   Also it is a popular practice for window managers to bind the app launcher to *Super + P*:
+The function that you probably want in order to start an app from *PATH* variable is *bon-app-launcher-usr-bin*  
+
+(*bon-app-launcher* accepts other locations)
+
+   It is a popular practice for window managers to bind the app launcher to *Super + P*:
 #+begin_src emacs-lisp
-(exwm-input-set-key (kbd "s-p") 'bon-app-launcher)
+(exwm-input-set-key (kbd "s-p") 'bon-app-launcher-usr-bin)
 #+end_src
