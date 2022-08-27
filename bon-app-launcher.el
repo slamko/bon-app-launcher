@@ -46,7 +46,7 @@
   (f-write-text bon-app-launcher--last-entry 'utf-8 (bon-app-launcher--last-entry-file))
   (when (not (member command last-entries-list))
     (setq last-entries-list (push command last-entries-list))
-    (f-append-text (concat command "\n") 'utf-8 (bon-app-launcher--last-entries-file)))
+    (f-write-text (mapconcat (lambda (str) str) last-entries-list "\n") 'utf-8 (bon-app-launcher--last-entries-file)))
   
   (start-process-shell-command bon-app-launcher--last-entry nil command))
 
@@ -70,12 +70,22 @@
 		(if
             (and
              (not (member file-name-bin unique-bin-names))
-             (not (member file-name-bin last-entries-list))
              (file-executable-p bin-path) (not (file-directory-p bin-path)))
 			(setq unique-bin-names (append (list file-name-bin) unique-bin-names)))))))
 
 (defun list-binaries (bins)
-  (append last-entries-list (reverse (mapcar 'file-name-nondirectory bins))))
+  (setq last-entries-list
+        (remove 'nil
+                (mapcar
+                 (lambda (entry-name)
+                   (if (member entry-name bins)
+                       entry-name))
+                 last-entries-list)))
+  
+  (append last-entries-list
+          (reverse
+           (mapcar 'file-name-nondirectory
+                   bins))))
 
 (defun bon-app-launcher--list-binaries (&optional bin-path)
   (interactive)
@@ -111,3 +121,4 @@
   (bon-app-launcher "/usr/bin"))
 
 (provide 'bon-app-launcher)
+

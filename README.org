@@ -7,8 +7,8 @@
 
 ** About
    The package intends to bring dmenu features to GNU Emacs editor used as a Desktop Environment.
-   For some reason other application launchers for Emacs (like ```counsel-linux-app```) do not allow to run custom shell command or pass some options to the        programs (as dmenu does) and at the same time the default EXWM app launcher, which allows running shell commands, does not have an interactive menu.
-   So ```bon-app-launcher``` is an Emacs-addopted dmenu clone with two additional features:
+   For some reason other application launchers for Emacs (like *counsel-linux-app*) do not allow to run custom shell command or pass some options to the programs (as dmenu does) and at the same time the default EXWM app launcher, which allows running shell commands, does not have an interactive menu.
+   So *bon-app-launcher* is an Emacs-addopted dmenu clone with two additional features:
    1. Autoselecting last chosen entry
    2. Sorting most used entries to the beggining of the list
    
@@ -24,11 +24,16 @@ git clone https://github.com/slamko/bon-app-launcher.git
 (require 'bon-app-launcher)
 #+end_src
 
-The function that you probably want in order to start an app from *PATH* variable is *bon-app-launcher-usr-bin*  
-
-(*bon-app-launcher* accepts other locations)
-
-   It is a popular practice for window managers to bind the app launcher to *Super + P*:
+Alternatively using *straight*
 #+begin_src emacs-lisp
-(exwm-input-set-key (kbd "s-p") 'bon-app-launcher-usr-bin)
+(use-package bon-app-launcher
+  :commands (bon-app-launcher bon-app-launcher-usr-bin)
+  :straight (bon-app-launcher :host github
+                    :repo "slamko/bon-app-launcher"))
 #+end_src
+
+   Also it is a popular practice for window managers to bind the app launcher to *Super + P*:
+#+begin_src emacs-lisp
+(exwm-input-set-key (kbd "s-p") 'bon-app-launcher)
+#+end_src
+
